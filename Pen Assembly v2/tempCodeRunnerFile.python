@@ -1,0 +1,32 @@
+import subprocess
+import pkg_resources
+import os
+
+# Function to get the size of a directory
+def get_size(start_path):
+    total_size = 0
+    for dirpath, dirnames, filenames in os.walk(start_path):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            # skip if it is symbolic link
+            if not os.path.islink(fp):
+                total_size += os.path.getsize(fp)
+    return total_size
+
+# Get list of installed packages
+installed_packages = pkg_resources.working_set
+
+# Print package details
+print(f"{'Package':<30} {'Version':<15} {'Size (MB)':<10}")
+print("="*55)
+
+for package in installed_packages:
+    package_name = package.project_name
+    package_version = package.version
+    package_location = package.location
+    package_path = os.path.join(package_location, package_name)
+    
+    if os.path.exists(package_path):
+        size_mb = get_size(package_path) / (1024 * 1024)  # Convert bytes to MB
+        print(f"{package_name:<30} {package_version:<15} {size_mb:<10.2f}")
+
